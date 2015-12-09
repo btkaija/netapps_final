@@ -11,6 +11,8 @@ class atm_client:
 		self.__set_window_size()
 		self.__setup_login_frame()
 		self.__setup_pic_secure_frame()
+
+		self.base_window.balance = str(-1)
 		self.user_data_frame = user_frame(self.base_window)
 
 
@@ -32,8 +34,11 @@ class atm_client:
 			self.user_data_frame.grid_remove()
 			self.login_frame.grid(row = 0, column = 0, sticky = N+S+E+W)
 			self.login_logout.config(state=ACTIVE, text = "Login")
+			self.logged_in = False
 		else:
 			#make login request and save data from request
+			self.user_data_frame.update_balance(1000)
+			#end request
 			self.login_frame.grid_remove()
 			self.pic_secure_frame.grid(row = 0, column = 0, sticky = N+S+E+W)
 			self.login_logout.config(state=DISABLED, text = "...")
@@ -83,7 +88,8 @@ class atm_client:
 	def __setup_pic_secure_frame(self):
 		self.pic_secure_frame = Frame(self.base_window)
 
-		self.ask_pic_label = Label(self.pic_secure_frame, font = ('Corbel', '16'), 
+		self.ask_pic_label = Label(self.pic_secure_frame, 
+			font = ('Corbel', '16'), 
 			text = 'Is this picture associated with your account?')
 		self.ask_pic_label.grid(row = 0, column = 0, columnspan = 2)
 
@@ -94,7 +100,8 @@ class atm_client:
 
 		self.pic_label = Label(self.pic_secure_frame, image = photo)
 		self.pic_label.photo = photo
-		self.pic_label.grid(row = 1, column = 0, columnspan = 2, padx = 25, pady = 25)
+		self.pic_label.grid(row = 1, column = 0, 
+			columnspan = 2, padx = 25, pady = 25)
 		
 		self.confirm_button = Button(self.pic_secure_frame, text = 'Confirm',
 			command = self.confirm_pic_press, font = ('Corbel', '16'))
