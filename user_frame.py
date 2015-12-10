@@ -1,9 +1,9 @@
 from Tkinter import *
 from pytesser import image_to_string
-from PIL import Image, ImageFilter, ImageEnhance
+from PIL import Image, ImageFilter, ImageEnhance, ImageTk
 import picamera
 from datetime import datetime
-
+from pic_window import pic_window
 
 class user_frame(Frame):
 	def __init__(self, parent, **options):
@@ -45,13 +45,9 @@ class user_frame(Frame):
 		withdraw_amount = self.wf_amount_entry.get()
 
 
+
 	def deposit_action(self):
 		print 'depositing '+self.deposit_amount
-
-	def save_sec_pic_action(self):
-		print 'saving security pic'
-
-		#send request to update security pic
 
 
 	def check_picture_action(self):
@@ -59,8 +55,11 @@ class user_frame(Frame):
 		time = str(datetime.now())
 
 		camera = picamera.PiCamera()
-		camera.start_preview(fullscreen = False, window=(100, 20, 640, 480))
-		raw_input("Press Enter to continue...")
+		camera.start_preview(fullscreen = False, window=(400, 400, 640, 480))
+		
+		waiter = pic_window(self)
+		self.wait_window(waiter.top)
+
 		camera.capture(time+'.jpg')
 		camera.stop_preview()
 
@@ -84,8 +83,9 @@ class user_frame(Frame):
 		time = str(datetime.now())
 
 		camera = picamera.PiCamera()
-		camera.start_preview(fullscreen = False, window=(100, 20, 640, 480))
-		raw_input("Press Enter to continue...")
+		camera.start_preview(fullscreen = False, window=(400, 400, 640, 480))
+		waiter = pic_window(self)
+		self.wait_window(waiter.top)
 		camera.capture(time+'.jpg')
 		camera.stop_preview()
 
@@ -191,16 +191,10 @@ class user_frame(Frame):
 		self.pf_pic_label.grid(row = 1, column =0)
 		self.pf_pic_label.photo = None
 
-		self.pf_deposit_button = Button(self.picture_frame,
-			text = 'Save', 
-			font = ('Corbel', '16'), 
-			command = self.save_sec_pic_action)
-		self.pf_deposit_button.grid(row = 3, column = 0, padx = 15, pady = 15)
 
 		Grid.grid_rowconfigure(self.picture_frame, 0, weight = 1)
 		Grid.grid_columnconfigure(self.picture_frame, 0, weight = 1)
 		Grid.grid_columnconfigure(self.picture_frame, 1, weight = 1)
-		Grid.grid_columnconfigure(self.picture_frame, 2, weight = 1)
 
 
 	def __setup_button_frame(self):

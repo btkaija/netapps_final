@@ -32,7 +32,7 @@ class atm_client:
 		
 		#when logging out
 		if self.logged_in:
-			#send logout req
+			#send logout request with pic
 
 			self.user_data_frame.grid_remove()
 			self.login_frame.grid(row = 0, column = 0, sticky = N+S+E+W)
@@ -44,7 +44,9 @@ class atm_client:
 			self.user_name = self.user_entry.get()
 			self.user_pass = self.pass_entry.get()
 
-			#make login request and save data 
+
+			#make login request and save balance to monies
+			#and save picture to img
 			img = Image.open("nick_cage.jpg")
 			monies = 1000
 
