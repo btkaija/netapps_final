@@ -1,9 +1,12 @@
 from Tkinter import *
-from pytesser import image_to_string
+#from pytesser import image_to_string
 from PIL import Image, ImageFilter, ImageEnhance, ImageTk
-import picamera
+#import picamera
 from datetime import datetime
 from pic_window import pic_window
+
+import sys, pika, json, os
+from rpc_client import RpcClient
 
 class user_frame(Frame):
 	def __init__(self, parent, **options):
@@ -14,7 +17,7 @@ class user_frame(Frame):
 		self.security_pic = None
 		self.deposit_amount = 0
 
-		self.camera = picamera.PiCamera()
+		#self.camera = picamera.PiCamera()
 		
 		self.__setup_button_frame()
 		self.__setup_withdraw_frame()
@@ -46,14 +49,23 @@ class user_frame(Frame):
 		print 'withdrawing!'
 		withdraw_amount = self.wf_amount_entry.get()
 
+		self.server = RpcClient('172.30.60.112', self.name)
+		msg = {'request':'withdraw',
+				'amount':withdraw_amount,
+				'user':self.name}
+		msg_j = json.dumps(msg)
+		self.server.call(msg_j, 'atm_queue')	
+
 
 	def deposit_action(self):
 		print 'depositing '+self.deposit_amount
 
-	def save_sec_pic_action(self):
-		print 'saving security pic'
-
-		#send request to update security pic
+		self.server = RpcClient('172.30.60.112', self.name)
+		msg = {'request':'deposit',
+				'amount':self.deposit_amount,
+				'user':self.name}
+		msg_j = json.dumps(msg)
+		self.server.call(msg_j, 'atm_queue')
 
 
 	def check_picture_action(self):
@@ -66,10 +78,10 @@ class user_frame(Frame):
 		waiter = pic_window(self)
 		self.wait_window(waiter.top)
 
-		self.camera.capture(time+'.jpg')
+		self.camera.capture('check.jpg')
 		self.camera.stop_preview()
 
-		im = Image.open(time+".jpg")
+		im = Image.open("check.jpg")
 		text = image_to_string(im)
 		im = im.resize((480, 270), Image.ANTIALIAS)
 		photo = ImageTk.PhotoImage(im)
@@ -94,10 +106,10 @@ class user_frame(Frame):
 		waiter = pic_window(self)
 		self.wait_window(waiter.top)
 		
-		self.camera.capture(time+'.jpg')
+		self.camera.capture('sec.jpg')
 		self.camera.stop_preview()
 
-		self.security_pic = Image.open(time+".jpg")
+		self.security_pic = Image.open("sec.jpg")
 		im = im.resize((480, 270), Image.ANTIALIAS)
 		photo = ImageTk.PhotoImage(im)
 		self.pf_pic_label.config(image = photo)

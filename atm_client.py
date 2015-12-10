@@ -2,13 +2,16 @@
 from Tkinter import *
 from user_frame import user_frame
 from PIL import Image, ImageTk
-
+import sys, pika, json, os
+from rpc_client import RpcClient
 
 class atm_client:
 	def __init__(self):
 		self.base_window = Tk()
 		self.base_window.title('ATM Machine')
 		
+
+
 		self.__set_window_size()
 		self.__setup_login_frame()
 		self.__setup_pic_secure_frame()
@@ -44,6 +47,13 @@ class atm_client:
 			self.user_name = self.user_entry.get()
 			self.user_pass = self.pass_entry.get()
 
+			self.server = RpcClient('172.30.60.112', self.user_name)
+			msg = {'request':'login',
+					'user':self.user_name,
+					'pass':self.user_pass}
+			msg_j = json.dumps(msg)
+			self.server.call(msg_j, 'atm_queue')		
+
 			#make login request and save data 
 			img = Image.open("nick_cage.jpg")
 			monies = 1000
@@ -73,10 +83,18 @@ class atm_client:
 	def deny_pic_press(self):
 		#send logout request
 		self.logged_in = False
+
+		msg = {'request':'logout',
+				'picture_data':'sec.jpg',
+				'user':self.user_name}
+		msg_j = json.dumps(msg)
+		server.call(msg_j, 'atm_queue')
+
 		self.pic_secure_frame.grid_remove()
 
 		self.login_frame.grid(row = 0, column = 0, sticky = N+S+E+W)
 		self.login_logout.config(state=ACTIVE, text = "Login")
+
 
 
 	def __set_window_size(self):
