@@ -1,7 +1,7 @@
 from Tkinter import *
-#from pytesser import image_to_string
+from pytesser import image_to_string
 from PIL import Image, ImageFilter, ImageEnhance, ImageTk
-#import picamera
+import picamera
 from datetime import datetime
 from pic_window import pic_window
 
@@ -17,7 +17,7 @@ class user_frame(Frame):
 		self.security_pic = None
 		self.deposit_amount = 0
 
-		#self.camera = picamera.PiCamera()
+		self.camera = picamera.PiCamera()
 		
 		self.__setup_button_frame()
 		self.__setup_withdraw_frame()
@@ -45,6 +45,7 @@ class user_frame(Frame):
 
 	##TODO: implement all these functions 
 	##from parnter implementations
+
 	def withdraw_action(self):
 		print 'withdrawing!'
 		withdraw_amount = self.wf_amount_entry.get()
@@ -54,7 +55,11 @@ class user_frame(Frame):
 				'amount':withdraw_amount,
 				'user':self.name}
 		msg_j = json.dumps(msg)
-		self.server.call(msg_j, 'atm_queue')	
+		self.server.call(msg_j, 'atm_queue')
+
+		new_bal = self.server.data['balance']
+		print 'data is :'+ new_bal
+		self.update_balance(new_bal)	
 
 
 	def deposit_action(self):
@@ -66,6 +71,10 @@ class user_frame(Frame):
 				'user':self.name}
 		msg_j = json.dumps(msg)
 		self.server.call(msg_j, 'atm_queue')
+
+		new_bal = self.server.data['balance']
+		print 'data is :'+ new_bal
+		self.update_balance(new_bal)
 
 
 	def check_picture_action(self):
@@ -90,11 +99,10 @@ class user_frame(Frame):
 		self.df_pic_label.photo = photo
 
 		print text.rstrip()
-		try:
-			self.deposit_amount = float(text.rstrip())
-			self.df_value_label.config("$"+self.deposit_amount+" detected")
-		except:
-			self.df_value_label.config(text="No money detected")
+		
+		self.deposit_amount = float(text.rstrip())
+		self.df_value_label.config("$"+self.deposit_amount+" detected")
+		#self.df_value_label.config(text="No money detected")
 
 
 	def security_picture_action(self):
@@ -110,8 +118,8 @@ class user_frame(Frame):
 		self.camera.stop_preview()
 
 		self.security_pic = Image.open("sec.jpg")
-		im = im.resize((480, 270), Image.ANTIALIAS)
-		photo = ImageTk.PhotoImage(im)
+		self.security_pic = self.security_pic.resize((480, 270), Image.ANTIALIAS)
+		photo = ImageTk.PhotoImage(self.security_pic)
 		self.pf_pic_label.config(image = photo)
 		self.pf_pic_label.photo = photo
 
@@ -210,12 +218,6 @@ class user_frame(Frame):
 			image = self.security_pic, text = 'pic goes here')
 		self.pf_pic_label.grid(row = 1, column =0)
 		self.pf_pic_label.photo = None
-
-		self.pf_deposit_button = Button(self.picture_frame,
-			text = 'Save', 
-			font = ('Corbel', '16'), 
-			command = self.save_sec_pic_action)
-		self.pf_deposit_button.grid(row = 3, column = 0, padx = 15, pady = 15)
 
 		Grid.grid_rowconfigure(self.picture_frame, 0, weight = 1)
 		Grid.grid_columnconfigure(self.picture_frame, 0, weight = 1)

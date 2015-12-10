@@ -7,7 +7,7 @@ class RpcClient(object):
                         virtual_host="final_team_8", credentials=pika.PlainCredentials("team_8_user", "atm", True)))
                 self.name = uname
                 self.channel = self.connection.channel()
-
+		self.data = ''
                 result = self.channel.queue_declare(exclusive=True)
                 self.callback_queue = result.method.queue
 
@@ -15,12 +15,14 @@ class RpcClient(object):
 
         def on_response(self, ch, method, props, body):
                 print body
+		tmp = json.loads(body)
+		self.data = tmp
                 if "picture_data" in body:
-                        tmp = json.loads(body)
                         name = tmp['picture_data']
-                        # if not name=="":
-                        #         os.system("scp pi@172.30.60.112:~/ECE4564/final/clients/"+self.name+"/" + name + " .")
+                        if not name=="":
+                                 os.system("scp pi@172.30.60.112:~/ECE4564/final/clients/"+self.name+"/" + name + " .")
                 self.channel.stop_consuming()
+		
 
         def call(self, msg, key):
                 self.channel.basic_publish(exchange='', routing_key=key,

@@ -36,6 +36,11 @@ class atm_client:
 		#when logging out
 		if self.logged_in:
 			#send logout req
+			msg = {'request':'logout',
+				'picture_data':'sec.jpg',
+				'user':self.user_name}
+			msg_j = json.dumps(msg)
+			self.server.call(msg_j, 'atm_queue')
 
 			self.user_data_frame.grid_remove()
 			self.login_frame.grid(row = 0, column = 0, sticky = N+S+E+W)
@@ -53,17 +58,20 @@ class atm_client:
 					'pass':self.user_pass}
 			msg_j = json.dumps(msg)
 			self.server.call(msg_j, 'atm_queue')		
-
-			#make login request and save data 
-			img = Image.open("nick_cage.jpg")
-			monies = 1000
-
+			
+			new_bal = self.server.data['balance']
+			print 'data is :'+ new_bal
+			self.user_data_frame.update_balance(new_bal)
+			
+			 
+			img = Image.open("sec.jpg")
+			
 			img = img.resize((480, 270), Image.ANTIALIAS)
 			photo = ImageTk.PhotoImage(img)
 			self.pic_label.photo = photo
 			self.pic_label.config(image = photo)
 
-			self.user_data_frame.update_balance(monies)
+			self.user_data_frame.update_balance(new_bal)
 			self.user_data_frame.update_sec_pic(photo)
 			self.user_data_frame.update_name(self.user_name)
 
@@ -88,7 +96,7 @@ class atm_client:
 				'picture_data':'sec.jpg',
 				'user':self.user_name}
 		msg_j = json.dumps(msg)
-		server.call(msg_j, 'atm_queue')
+		self.server.call(msg_j, 'atm_queue')
 
 		self.pic_secure_frame.grid_remove()
 
