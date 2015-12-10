@@ -1,10 +1,21 @@
 from Tkinter import *
+try:
+	from pytesser import *
+	from PIL import Image, ImageFilter, ImageEnhance
+	import picamera
+	from datetime import datetime
+except:
+	print "no packages"
+
 
 class user_frame(Frame):
 	def __init__(self, parent, **options):
 		Frame.__init__(self, parent, **options)
 
 		self.balance = str(-1)
+		self.name = None;
+		self.security_pic = None
+		self.deposit_amount = 0
 
 		self.__setup_button_frame()
 		self.__setup_withdraw_frame()
@@ -23,22 +34,69 @@ class user_frame(Frame):
 		self.balance = str(val)
 		self.balance_l.config(text = "Balance: $"+self.balance)
 
+	def update_name(self, name):
+		self.name = name
+
+	def update_sec_pic(self, img):
+		self.security_pic = img
+		self.pf_pic_label.config(image = img)
+
 	##TODO: implement all these functions 
 	##from parnter implementations
 	def withdraw_action(self):
-		print 'withdrawing!'	
+		print 'withdrawing!'
+		withdraw_amount = self.wf_amount_entry.get()
+
 
 	def deposit_action(self):
-		print 'depositing!'
+		print 'depositing '+self.deposit_amount
 
 	def save_sec_pic_action(self):
 		print 'saving security pic'
 
+		#send request to update security pic
+
+
 	def check_picture_action(self):
 		print 'taking picture of check'
+		time = str(datetime.now())
+
+		camera = picamera.PiCamera()
+		camera.start_preview(fullscreen = False, window=(100, 20, 640, 480))
+		raw_input("Press Enter to continue...")
+		camera.capture(time+'.jpg')
+		camera.stop_preview()
+
+		im = Image.open(time+".jpg")
+		text = image_to_string(im)
+		im = im.resize((480, 270), Image.ANTIALIAS)
+		photo = ImageTk.PhotoImage(im)
+
+		self.df_pic_label.config(image = photo)
+		self.df_pic_label.photo = photo
+
+		try:
+			self.deposit_amount = int(text)
+			self.df_value_label.config("$"+monies+" detected")
+		except:
+			self.df_value_label.config("No money detected")
+
 
 	def security_picture_action(self):
 		print 'taking security picture'
+		time = str(datetime.now())
+
+		camera = picamera.PiCamera()
+		camera.start_preview(fullscreen = False, window=(100, 20, 640, 480))
+		raw_input("Press Enter to continue...")
+		camera.capture(time+'.jpg')
+		camera.stop_preview()
+
+		self.security_pic = Image.open(time+".jpg")
+		im = im.resize((480, 270), Image.ANTIALIAS)
+		photo = ImageTk.PhotoImage(im)
+		self.pf_pic_label.config(image = photo)
+		self.pf_pic_label.photo = photo
 
 	def set_withdraw_frame(self):
 		self.action_frame.grid_remove()
@@ -100,8 +158,9 @@ class user_frame(Frame):
 		self.df_take_pic_button.grid(row = 0, column = 0)
 
 		self.df_pic_label = Label(self.deposit_frame,
-			image = None, text = 'pic goes here')
+			image = self.security_pic)
 		self.df_pic_label.grid(row = 1, column =0)
+		self.df_pic_label.photo = None
 
 		self.df_value_label = Label(self.deposit_frame, 
 			text = 'No money detected.', 
@@ -131,14 +190,15 @@ class user_frame(Frame):
 		self.pf_take_pic_button.grid(row = 0, column = 0)
 
 		self.pf_pic_label = Label(self.picture_frame,
-			image = None, text = 'pic goes here')
+			image = self.security_pic, text = 'pic goes here')
 		self.pf_pic_label.grid(row = 1, column =0)
+		self.pf_pic_label.photo = None
 
 		self.pf_deposit_button = Button(self.picture_frame,
 			text = 'Save', 
 			font = ('Corbel', '16'), 
 			command = self.save_sec_pic_action)
-		self.pf_deposit_button.grid(row = 3, column = 0)
+		self.pf_deposit_button.grid(row = 3, column = 0, padx = 15, pady = 15)
 
 		Grid.grid_rowconfigure(self.picture_frame, 0, weight = 1)
 		Grid.grid_columnconfigure(self.picture_frame, 0, weight = 1)

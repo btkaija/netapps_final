@@ -3,6 +3,7 @@ from Tkinter import *
 from user_frame import user_frame
 from PIL import Image, ImageTk
 
+
 class atm_client:
 	def __init__(self):
 		self.base_window = Tk()
@@ -12,7 +13,6 @@ class atm_client:
 		self.__setup_login_frame()
 		self.__setup_pic_secure_frame()
 
-		self.base_window.balance = str(-1)
 		self.user_data_frame = user_frame(self.base_window)
 
 
@@ -29,15 +29,34 @@ class atm_client:
 		self.base_window.mainloop()
 
 	def login_logout_press(self):
+		
+		#when logging out
 		if self.logged_in:
-			#get new picture from camera and send logout req
+			#send logout req
+
 			self.user_data_frame.grid_remove()
 			self.login_frame.grid(row = 0, column = 0, sticky = N+S+E+W)
 			self.login_logout.config(state=ACTIVE, text = "Login")
 			self.logged_in = False
+
+		#when logging in
 		else:
-			#make login request and save data from request
-			self.user_data_frame.update_balance(1000)
+			self.user_name = self.user_entry.get()
+			self.user_pass = self.pass_entry.get()
+
+			#make login request and save data 
+			img = Image.open("nick_cage.jpg")
+			monies = 1000
+
+			img = img.resize((480, 270), Image.ANTIALIAS)
+			photo = ImageTk.PhotoImage(img)
+			self.pic_label.photo = photo
+			self.pic_label.config(image = photo)
+
+			self.user_data_frame.update_balance(monies)
+			self.user_data_frame.update_sec_pic(photo)
+			self.user_data_frame.update_name(self.user_name)
+
 			#end request
 			self.login_frame.grid_remove()
 			self.pic_secure_frame.grid(row = 0, column = 0, sticky = N+S+E+W)
@@ -52,11 +71,13 @@ class atm_client:
 		self.login_logout.config(state=ACTIVE, text = "Logout")
 
 	def deny_pic_press(self):
+		#send logout request
 		self.logged_in = False
 		self.pic_secure_frame.grid_remove()
 
 		self.login_frame.grid(row = 0, column = 0, sticky = N+S+E+W)
 		self.login_logout.config(state=ACTIVE, text = "Login")
+
 
 	def __set_window_size(self):
 		# print "Setting window size"
@@ -69,21 +90,22 @@ class atm_client:
 		self.login_frame.grid(row = 0, column = 0, sticky= N+S+E+W)
 
 		self.user_label = Label(self.login_frame, 
-			text = 'User ID:    ', font = ('Corbel', '16'))
-		self.user_label.grid(row=0, column=0, sticky = E+S)
+			text = "User's Name:", font = ('Corbel', '16'))
+		self.user_label.grid(row=0, column=0, sticky = E+S, padx =10, pady = 10)
 		self.pass_label = Label(self.login_frame, 
 			text = 'Password:', font = ('Corbel', '16'))
-		self.pass_label.grid(row=1, column=0, sticky = E+N)
+		self.pass_label.grid(row=1, column=0, sticky = E+N, padx =10, pady = 10)
 
 		self.user_entry = Entry(self.login_frame, font = ('Corbel', '16'))
-		self.user_entry.grid(row=0, column=1, sticky = W+S)
+		self.user_entry.grid(row=0, column=1, sticky = W+S, padx =10, pady = 10)
 		self.pass_entry = Entry(self.login_frame, font = ('Corbel', '16'))
-		self.pass_entry.grid(row=1, column=1, sticky = W+N)
+		self.pass_entry.grid(row=1, column=1, sticky = W+N, padx =10, pady = 10)
 
 		Grid.grid_columnconfigure(self.login_frame, 0, weight = 1)
 		Grid.grid_rowconfigure(self.login_frame, 0, weight = 1)
 		Grid.grid_columnconfigure(self.login_frame, 1, weight = 1)
 		Grid.grid_rowconfigure(self.login_frame, 1, weight = 1)
+
 
 	def __setup_pic_secure_frame(self):
 		self.pic_secure_frame = Frame(self.base_window)
@@ -94,7 +116,7 @@ class atm_client:
 		self.ask_pic_label.grid(row = 0, column = 0, columnspan = 2)
 
 		img = Image.open("nick_cage.jpg")
-		img = img.resize((300, 300), Image.ANTIALIAS)
+		img = img.resize((480, 270), Image.ANTIALIAS)
 		photo = ImageTk.PhotoImage(img)
 		#or use the one gotten from request
 
