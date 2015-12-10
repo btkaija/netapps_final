@@ -1,11 +1,8 @@
 from Tkinter import *
-try:
-	from pytesser import *
-	from PIL import Image, ImageFilter, ImageEnhance
-	import picamera
-	from datetime import datetime
-except:
-	print "no packages"
+from pytesser import image_to_string
+from PIL import Image, ImageFilter, ImageEnhance
+import picamera
+from datetime import datetime
 
 
 class user_frame(Frame):
