@@ -8,10 +8,8 @@ import subprocess
 
 import util
 import errors
-import os.path
 
 tesseract_exe_name = 'tesseract' # Name of executable to be called at command line
-#tesseract_exe_name = os.path.join(os.path.dirname(__file__), 'tesseract')
 scratch_image_name = "temp.bmp" # This file must be .bmp or other Tesseract-compatible format
 scratch_text_name_root = "temp" # Leave out the .txt extension
 cleanup_scratch_flag = True  # Temporary files cleaned up after OCR operation
@@ -19,7 +17,7 @@ cleanup_scratch_flag = True  # Temporary files cleaned up after OCR operation
 def call_tesseract(input_filename, output_filename):
 	"""Calls external tesseract.exe on input file (restrictions on types),
 	outputting output_filename+'txt'"""
-	args = [tesseract_exe_name, input_filename, output_filename, 'nobatch', 'digits'] 
+	args = [tesseract_exe_name, input_filename, output_filename]
 	proc = subprocess.Popen(args)
 	retcode = proc.wait()
 	if retcode!=0:
