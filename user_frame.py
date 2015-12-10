@@ -14,6 +14,8 @@ class user_frame(Frame):
 		self.security_pic = None
 		self.deposit_amount = 0
 
+		self.camera = picamera.PiCamera()
+		
 		self.__setup_button_frame()
 		self.__setup_withdraw_frame()
 		self.__setup_deposit_frame()
@@ -58,14 +60,14 @@ class user_frame(Frame):
 		print 'taking picture of check'
 		time = str(datetime.now())
 
-		camera = picamera.PiCamera()
-		camera.start_preview(fullscreen = False, window=(100, 20, 640, 480))
+		
+		self.camera.start_preview(fullscreen = False, window=(100, 20, 640, 480))
 		
 		waiter = pic_window(self)
 		self.wait_window(waiter.top)
 
-		camera.capture(time+'.jpg')
-		camera.stop_preview()
+		self.camera.capture(time+'.jpg')
+		self.camera.stop_preview()
 
 		im = Image.open(time+".jpg")
 		text = image_to_string(im)
@@ -75,25 +77,25 @@ class user_frame(Frame):
 		self.df_pic_label.config(image = photo)
 		self.df_pic_label.photo = photo
 
+		print text.rstrip()
 		try:
-			self.deposit_amount = int(text)
-			self.df_value_label.config("$"+monies+" detected")
+			self.deposit_amount = float(text.rstrip())
+			self.df_value_label.config("$"+self.deposit_amount+" detected")
 		except:
-			self.df_value_label.config("No money detected")
+			self.df_value_label.config(text="No money detected")
 
 
 	def security_picture_action(self):
 		print 'taking security picture'
 		time = str(datetime.now())
 
-		camera = picamera.PiCamera()
-		camera.start_preview(fullscreen = False, window=(100, 20, 640, 480))
+		self.camera.start_preview(fullscreen = False, window=(100, 20, 640, 480))
 		
 		waiter = pic_window(self)
 		self.wait_window(waiter.top)
 		
-		camera.capture(time+'.jpg')
-		camera.stop_preview()
+		self.camera.capture(time+'.jpg')
+		self.camera.stop_preview()
 
 		self.security_pic = Image.open(time+".jpg")
 		im = im.resize((480, 270), Image.ANTIALIAS)
