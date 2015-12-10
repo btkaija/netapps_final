@@ -1,9 +1,9 @@
 from Tkinter import *
 from pytesser import image_to_string
-from PIL import Image, ImageFilter, ImageEnhance
+from PIL import Image, ImageFilter, ImageEnhance, ImageTk
 import picamera
 from datetime import datetime
-
+from pic_window import pic_window
 
 class user_frame(Frame):
 	def __init__(self, parent, **options):
@@ -60,7 +60,10 @@ class user_frame(Frame):
 
 		camera = picamera.PiCamera()
 		camera.start_preview(fullscreen = False, window=(100, 20, 640, 480))
-		raw_input("Press Enter to continue...")
+		
+		waiter = pic_window(self)
+		self.wait_window(waiter.top)
+
 		camera.capture(time+'.jpg')
 		camera.stop_preview()
 
@@ -85,7 +88,10 @@ class user_frame(Frame):
 
 		camera = picamera.PiCamera()
 		camera.start_preview(fullscreen = False, window=(100, 20, 640, 480))
-		raw_input("Press Enter to continue...")
+		
+		waiter = pic_window(self)
+		self.wait_window(waiter.top)
+		
 		camera.capture(time+'.jpg')
 		camera.stop_preview()
 
