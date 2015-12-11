@@ -63,7 +63,7 @@ class user_frame(Frame):
 
 
 	def deposit_action(self):
-		print 'depositing '+self.deposit_amount
+		print 'depositing '+str(self.deposit_amount)
 
 		self.server = RpcClient('172.30.60.112', self.name)
 		msg = {'request':'deposit',
@@ -99,10 +99,11 @@ class user_frame(Frame):
 		self.df_pic_label.photo = photo
 
 		print text.rstrip()
-		
-		self.deposit_amount = float(text.rstrip())
-		self.df_value_label.config("$"+self.deposit_amount+" detected")
-		#self.df_value_label.config(text="No money detected")
+		try:
+			self.deposit_amount = float(text.rstrip())
+			self.df_value_label.config(text="$"+str(self.deposit_amount)+" detected")
+		except:
+			self.df_value_label.config(text="No money detected")
 
 
 	def security_picture_action(self):

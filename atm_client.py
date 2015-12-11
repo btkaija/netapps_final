@@ -46,6 +46,7 @@ class atm_client:
 			self.login_frame.grid(row = 0, column = 0, sticky = N+S+E+W)
 			self.login_logout.config(state=ACTIVE, text = "Login")
 			self.logged_in = False
+			self.pass_entry.config(text='')
 
 		#when logging in
 		else:
@@ -59,26 +60,31 @@ class atm_client:
 			msg_j = json.dumps(msg)
 			self.server.call(msg_j, 'atm_queue')		
 			
-			new_bal = self.server.data['balance']
-			print 'data is :'+ new_bal
-			self.user_data_frame.update_balance(new_bal)
 			
-			 
-			img = Image.open("sec.jpg")
+
+			successful_login = self.server.data['status']
+			if (successful_login == 'success'):
 			
-			img = img.resize((480, 270), Image.ANTIALIAS)
-			photo = ImageTk.PhotoImage(img)
-			self.pic_label.photo = photo
-			self.pic_label.config(image = photo)
+			 	new_bal = self.server.data['balance']
+				print 'balance is :'+ new_bal
+				self.user_data_frame.update_balance(new_bal)
+				img = Image.open("sec.jpg")
+			
+				img = img.resize((480, 270), Image.ANTIALIAS)
+				photo = ImageTk.PhotoImage(img)
+				self.pic_label.photo = photo
+				self.pic_label.config(image = photo)
 
-			self.user_data_frame.update_balance(new_bal)
-			self.user_data_frame.update_sec_pic(photo)
-			self.user_data_frame.update_name(self.user_name)
+				self.user_data_frame.update_balance(new_bal)
+				self.user_data_frame.update_sec_pic(photo)
+				self.user_data_frame.update_name(self.user_name)
 
-			#end request
-			self.login_frame.grid_remove()
-			self.pic_secure_frame.grid(row = 0, column = 0, sticky = N+S+E+W)
-			self.login_logout.config(state=DISABLED, text = "...")
+				#end request
+				self.login_frame.grid_remove()
+				self.pic_secure_frame.grid(row = 0, column = 0, sticky = N+S+E+W)
+				self.login_logout.config(state=DISABLED, text = "...")
+			else:
+				self.fail_login.config(text=self.server.data['error'])
 			
 
 	def confirm_pic_press(self):
@@ -102,6 +108,7 @@ class atm_client:
 
 		self.login_frame.grid(row = 0, column = 0, sticky = N+S+E+W)
 		self.login_logout.config(state=ACTIVE, text = "Login")
+		self.pass_entry.config(text='')
 
 
 
@@ -124,13 +131,18 @@ class atm_client:
 
 		self.user_entry = Entry(self.login_frame, font = ('Corbel', '16'))
 		self.user_entry.grid(row=0, column=1, sticky = W+S, padx =10, pady = 10)
-		self.pass_entry = Entry(self.login_frame, font = ('Corbel', '16'))
+		self.pass_entry = Entry(self.login_frame, font = ('Corbel', '16'),
+			show='*')
 		self.pass_entry.grid(row=1, column=1, sticky = W+N, padx =10, pady = 10)
+
+		self.fail_login = Label(self.login_frame, font = ('Corbel', '16'), text = " ")
+		self.fail_login.grid(row = 2, column = 0, columnspan = 2)
 
 		Grid.grid_columnconfigure(self.login_frame, 0, weight = 1)
 		Grid.grid_rowconfigure(self.login_frame, 0, weight = 1)
 		Grid.grid_columnconfigure(self.login_frame, 1, weight = 1)
 		Grid.grid_rowconfigure(self.login_frame, 1, weight = 1)
+		Grid.grid_rowconfigure(self.login_frame, 2, weight = 1)
 
 
 	def __setup_pic_secure_frame(self):
